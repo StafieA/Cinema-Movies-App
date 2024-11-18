@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const tempMovieData = [
   {
@@ -207,10 +207,26 @@ function Search() {
 function NavBar({ children }) {
   return <nav className="nav-bar">{children}</nav>;
 }
-
+const KEY = "ca11eb04";
 export default function App() {
-  const [movies, setMovies] = useState(tempMovieData);
-  const [watched, setWatched] = useState(tempWatchedData);
+  const [movies, setMovies] = useState([]);
+  const [watched, setWatched] = useState([]);
+  const query = "interstellar";
+
+  useEffect(function () {
+    async function fetchMovies() {
+      const res = await fetch(
+        `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
+      );
+      // console.log("response is ", res);
+      const data = await res.json();
+      // console.log("data is ", data);
+      // console.log("data.Search is ", data.Search);
+      setMovies(data.Search);
+    }
+    fetchMovies();
+  }, []);
+
   return (
     <>
       <NavBar>

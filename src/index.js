@@ -8,12 +8,12 @@ import reportWebVitals from "./reportWebVitals";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    {/* <App /> */}
-    <StarRating
+    <App />
+    {/* <StarRating
       maxRating={5}
       messages={["Terrible", "Bad", "Okay", "Good", "Amazing"]}
     />
-    <StarRating defaultRating={3} color="red" size={24} />
+    <StarRating defaultRating={3} color="red" size={24} /> */}
   </React.StrictMode>
 );
 
