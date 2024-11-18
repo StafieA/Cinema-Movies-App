@@ -149,9 +149,9 @@ function Box({ children }) {
 //     </div>
 //   );
 // }
-function MovieItem({ movie }) {
+function MovieItem({ movie, handleSelectMovie }) {
   return (
-    <li key={movie.imdbID}>
+    <li key={movie.imdbID} onClick={() => handleSelectMovie(movie.imdbID)}>
       <img src={movie.Poster} alt={`${movie.Title} poster`} />
       <h3>{movie.Title}</h3>
       <div>
@@ -164,11 +164,15 @@ function MovieItem({ movie }) {
   );
 }
 
-function MovieList({ movies }) {
+function MovieList({ movies, handleSelectMovie }) {
   return (
-    <ul className="list">
+    <ul className="list list-movies">
       {movies?.map((movie) => (
-        <MovieItem key={movie.imdbID} movie={movie} />
+        <MovieItem
+          key={movie.imdbID}
+          movie={movie}
+          handleSelectMovie={handleSelectMovie}
+        />
       ))}
     </ul>
   );
@@ -209,15 +213,37 @@ function Search({ query, setQuery }) {
 function NavBar({ children }) {
   return <nav className="nav-bar">{children}</nav>;
 }
+
+function MovieDetails({ selectedId, handleCloseMovie }) {
+  return (
+    <div className="details">
+      <button className="btn-back" onClick={handleCloseMovie}>
+        &larr;
+      </button>
+      {selectedId}
+    </div>
+  );
+}
+
 const KEY = "ca11eb04";
+
 export default function App() {
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [selectedId, setSelectedId] = useState(null);
 
   const [query, setQuery] = useState("");
   const tempQuery = "home alone";
+
+  function handleSelectMovie(id) {
+    setSelectedId((selectedId) => (id === selectedId ? null : id));
+  }
+
+  function handleCloseMovie() {
+    setSelectedId(null);
+  }
 
   useEffect(
     function () {
@@ -267,12 +293,23 @@ export default function App() {
             <Info mess="🤔 Nothing to search, type something ✍️" />
           )}
           {isLoading && <Info mess="Loading" />}
-          {!isLoading && !error && <MovieList movies={movies} />}
+          {!isLoading && !error && (
+            <MovieList movies={movies} handleSelectMovie={handleSelectMovie} />
+          )}
           {error && <ErrorMessage message={error} />}
         </Box>
         <Box>
-          <WatchedSummary watched={watched} />
-          <WatchedMovieList watched={watched} />
+          {selectedId ? (
+            <MovieDetails
+              selectedId={selectedId}
+              handleCloseMovie={handleCloseMovie}
+            />
+          ) : (
+            <>
+              <WatchedSummary watched={watched} />
+              <WatchedMovieList watched={watched} />
+            </>
+          )}
         </Box>
       </Main>
     </>
