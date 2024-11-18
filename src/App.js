@@ -190,16 +190,18 @@ function Logo() {
   );
 }
 
-function Search() {
-  const [query, setQuery] = useState("");
-
+function Search({ query, setQuery }) {
   return (
     <input
       className="search"
       type="text"
       placeholder="Search movies..."
       value={query}
-      onChange={(e) => setQuery(e.target.value)}
+      onChange={(e) => {
+        setQuery(e.target.value);
+        // query = e.target.value;
+        console.log(e.target.value);
+      }}
     />
   );
 }
@@ -213,44 +215,58 @@ export default function App() {
   const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const query = "interstellar";
 
-  useEffect(function () {
-    async function fetchMovies() {
-      try {
-        setIsLoading(true);
-        const res = await fetch(
-          `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
-        );
-        if (!res.ok) throw new Error("Something went wrong with data fetching");
-        // console.log("response is ", res);
-        const data = await res.json();
-        if (data.Response === "False") throw new Error("Movie not found");
-        // console.log("data is ", data);
-        // console.log("data.Search is ", data.Search);
-        setMovies(data.Search);
-      } catch (error) {
-        console.log(error.message);
-        setError(error.message);
-      } finally {
-        setIsLoading(false);
+  const [query, setQuery] = useState("");
+  const tempQuery = "home alone";
+
+  useEffect(
+    function () {
+      async function fetchMovies() {
+        try {
+          setIsLoading(true);
+          setError("");
+          const res = await fetch(
+            `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
+          );
+          if (!res.ok)
+            throw new Error("Something went wrong with data fetching");
+          // console.log("response is ", res);
+          const data = await res.json();
+          if (data.Response === "False") throw new Error("Movie not found");
+          // console.log("data is ", data);
+          // console.log("data.Search is ", data.Search);
+          setMovies(data.Search);
+        } catch (err) {
+          console.log(err.message);
+          setError(err.message);
+        } finally {
+          setIsLoading(false);
+        }
       }
-    }
-    fetchMovies();
-  }, []);
+      if (!query.length) {
+        setMovies([]);
+        setError("");
+        return;
+      }
+      fetchMovies();
+    },
+    [query]
+  );
 
   return (
     <>
       <NavBar>
         <Logo />
-        <Search />
+        <Search query={query} setQuery={setQuery} />
         <NumResult movies={movies} />
       </NavBar>
       <Main>
         <Box>
           {/* {isLoading ? <Loader /> : <MovieList movies={movies} />} */}
-
-          {isLoading && <Loader />}
+          {!query.length && (
+            <Info mess="🤔 Nothing to search, type something ✍️" />
+          )}
+          {isLoading && <Info mess="Loading" />}
           {!isLoading && !error && <MovieList movies={movies} />}
           {error && <ErrorMessage message={error} />}
         </Box>
@@ -263,8 +279,8 @@ export default function App() {
   );
 }
 
-function Loader() {
-  return <p className="loader">Loading...</p>;
+function Info({ mess }) {
+  return <p className="loader">{mess} ...</p>;
 }
 
 function ErrorMessage({ message }) {
