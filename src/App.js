@@ -290,6 +290,18 @@ function MovieDetails({
     [selectedId]
   );
 
+  useEffect(
+    function () {
+      if (!movie.Title) return;
+      document.title = movie.Title;
+      return function () {
+        document.title = "Cinema";
+        console.log(`clean up effect for movie ${movie.Title}`);
+      };
+    },
+    [movie.Title]
+  );
+
   return (
     <div className="details">
       {isLoading ? (
