@@ -302,6 +302,20 @@ function MovieDetails({
     [movie.Title]
   );
 
+  useEffect(
+    function () {
+      function callback(e) {
+        if (e.code === "Escape") handleCloseMovie();
+        console.log("closing with ESCAPE key");
+      }
+      document.addEventListener("keydown", callback);
+      return function () {
+        document.removeEventListener("keydown", callback);
+      };
+    },
+    [handleCloseMovie]
+  );
+
   return (
     <div className="details">
       {isLoading ? (
@@ -416,6 +430,7 @@ export default function App() {
         setError("");
         return;
       }
+      handleCloseMovie();
       fetchMovies();
       return function () {
         controller.abort();
